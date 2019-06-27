@@ -1,0 +1,19 @@
+.classpath
+.project
+.factorypath
+.settings/
+bin/
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+Thumbs.db
+
+/target
+/dependency-reduced-pom.xml
