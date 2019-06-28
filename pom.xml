@@ -16,6 +16,7 @@
 	<properties>
 		<java.version>1.8</java.version>
 		<mainClass>x.mvmn.aircndctrl.hap.ACControlHAPBridge</mainClass>
+		<org.projectlombok.version>1.16.22</org.projectlombok.version>
 	</properties>
 
 	<dependencies>
