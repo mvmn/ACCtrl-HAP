@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
 import io.github.hapjava.HomekitRoot;
 import io.github.hapjava.HomekitServer;
 import x.mvmn.aircndctrl.hap.accessory.ACAccessory;
@@ -15,6 +17,7 @@ import x.mvmn.aircndctrl.service.impl.ACControlServiceImpl;
 import x.mvmn.aircndctrl.service.impl.ACDiscoverServiceImpl;
 import x.mvmn.aircndctrl.service.impl.EncryptionServiceImpl;
 
+@SpringBootApplication
 public class ACControlHAPBridge {
 
 	public static void main(String args[]) {

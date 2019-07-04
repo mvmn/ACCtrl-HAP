@@ -4,6 +4,8 @@ import java.beans.Transient;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 import org.apache.commons.io.FileUtils;
@@ -71,7 +73,7 @@ public class AuthInfoService implements HomekitAuthInfo {
 		}
 	}
 
-	private AuthInfoData authInfoData;
+	private final AuthInfoData authInfoData;
 	private final File usersFolder;
 
 	public AuthInfoService(File dataFolder) {
@@ -87,7 +89,6 @@ public class AuthInfoService implements HomekitAuthInfo {
 			} else {
 				authInfoData = new ObjectMapper().readValue(FileUtils.readFileToByteArray(authInfoDataFile), AuthInfoData.class);
 			}
-
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -111,7 +112,7 @@ public class AuthInfoService implements HomekitAuthInfo {
 
 	public void createUser(String username, byte[] publicKey) {
 		try {
-			FileUtils.writeByteArrayToFile(new File(usersFolder, username), publicKey, false);
+			FileUtils.writeByteArrayToFile(new File(usersFolder, URLEncoder.encode(username, StandardCharsets.UTF_8.name())), publicKey, false);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -123,7 +124,7 @@ public class AuthInfoService implements HomekitAuthInfo {
 
 	public byte[] getUserPublicKey(String username) {
 		try {
-			File userFile = new File(usersFolder, username);
+			File userFile = new File(usersFolder, URLEncoder.encode(username, StandardCharsets.UTF_8.name()));
 			return userFile.exists() ? FileUtils.readFileToByteArray(userFile) : null;
 		} catch (IOException e) {
 			throw new RuntimeException(e);
