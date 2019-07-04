@@ -1,6 +1,9 @@
 package x.mvmn.aircndctrl.hap;
 
 import java.io.File;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import io.github.hapjava.HomekitRoot;
 import io.github.hapjava.HomekitServer;
@@ -29,11 +32,13 @@ public class ACControlHAPBridge {
 
 			EncryptionService encryptionService = new EncryptionServiceImpl();
 			ACControlServiceImpl acControlService = new ACControlServiceImpl(encryptionService);
+			Set<String> macs = Collections.synchronizedSet(new HashSet<>());
 			new ACDiscoverServiceImpl(encryptionService).discover(10000, discovery -> {
-				bridge.addAccessory(new ACAccessory(discovery.getData().getMac().hashCode(), discovery.getData().getName(), discovery.getData().getMac(),
-						discovery.getData().getModel(), discovery.getData().getSeries(), ACAddress.ofDiscoveryResponse(discovery), acControlService));
+				if (macs.add(discovery.getData().getMac())) {
+					bridge.addAccessory(new ACAccessory(discovery.getData().getMac().hashCode(), discovery.getData().getName(), discovery.getData().getMac(),
+							discovery.getData().getModel(), discovery.getData().getSeries(), ACAddress.ofDiscoveryResponse(discovery), acControlService));
+				}
 			});
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
