@@ -3,10 +3,12 @@ package x.mvmn.aircndctrl.hap.service;
 import java.beans.Transient;
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.FileUtils;
 
@@ -94,40 +96,60 @@ public class AuthInfoService implements HomekitAuthInfo {
 		}
 	}
 
+	@Override
 	public String getPin() {
 		return System.getProperty("achp.pin", "123-45-678");
 	}
 
+	@Override
 	public String getMac() {
 		return authInfoData.getMac();
 	}
 
+	@Override
 	public BigInteger getSalt() {
 		return authInfoData.saltBigInt();
 	}
 
+	@Override
 	public byte[] getPrivateKey() {
 		return authInfoData.keyBytes();
 	}
 
+	@Override
 	public void createUser(String username, byte[] publicKey) {
 		try {
-			FileUtils.writeByteArrayToFile(new File(usersFolder, URLEncoder.encode(username, StandardCharsets.UTF_8.name())), publicKey, false);
+			FileUtils.writeByteArrayToFile(new File(usersFolder, usernameToFileName(username)), publicKey, false);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
+	@Override
 	public void removeUser(String username) {
-		new File(usersFolder, username).delete();
+		new File(usersFolder, usernameToFileName(username)).delete();
 	}
 
+	@Override
 	public byte[] getUserPublicKey(String username) {
 		try {
-			File userFile = new File(usersFolder, URLEncoder.encode(username, StandardCharsets.UTF_8.name()));
+			File userFile = new File(usersFolder, usernameToFileName(username));
 			return userFile.exists() ? FileUtils.readFileToByteArray(userFile) : null;
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	protected String usernameToFileName(String username) {
+		try {
+			return username != null ? URLEncoder.encode(username, StandardCharsets.UTF_8.name()) + ".hkuser" : null;
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public boolean hasUser() {
+		return Stream.of(usersFolder.listFiles()).map(File::getName).filter(fileName -> fileName.toLowerCase().endsWith(".hkuser")).count() > 0;
 	}
 }
