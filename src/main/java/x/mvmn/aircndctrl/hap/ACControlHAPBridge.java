@@ -31,17 +31,20 @@ public class ACControlHAPBridge {
 			HomekitServer homekit = new HomekitServer(Integer.parseInt(System.getProperty("achp.server.port", "9123")));
 			HomekitRoot bridge = homekit.createBridge(authInfoService, "Test Bridge", "TestBridge, Inc.", "G6", "111abe234");
 
-			bridge.start();
-
 			EncryptionService encryptionService = new EncryptionServiceImpl();
 			ACControlServiceImpl acControlService = new ACControlServiceImpl(encryptionService);
 			Set<String> macs = Collections.synchronizedSet(new HashSet<>());
+			System.out.println("Discovering ACs...");
 			new ACDiscoverServiceImpl(encryptionService).discover(10000, discovery -> {
 				if (macs.add(discovery.getData().getMac())) {
+					System.out.println("Discovered AC " + discovery.getData().getName() + " / " + discovery.getData().getMac() + " @ "
+							+ discovery.getAddress().getHostString() + ":" + discovery.getAddress().getPort());
 					bridge.addAccessory(new ACAccessory(discovery.getData().getMac().hashCode(), discovery.getData().getName(), discovery.getData().getMac(),
 							discovery.getData().getModel(), discovery.getData().getSeries(), ACAddress.ofDiscoveryResponse(discovery), acControlService));
 				}
-			});
+			}).join();
+			System.out.println("Done discovering. Starting bridge...");
+			bridge.start();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
